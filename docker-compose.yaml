@@ -1,0 +1,59 @@
+version: '2'
+services:
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker
+    restart: unless-stopped
+    environment:
+      - TZ="America/Toronto"
+      - PLEX_UID=${USER_ID}
+      - PLEX_GID=${GROUP_ID}
+    network_mode: host
+    volumes:
+      - ~/Server/plex/config:/config
+      - ~/Server/plex/transcode/temp>:/transcode
+      - /media/external:/data
+
+  transmission:
+    image: linuxserver/transmission:latest
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+    ports:
+      - 9091:9091
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ~/Server/transmission/config/:/config
+      - /media/external/downloads/:/downloads
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /dev/rtc:/dev/rtc:ro
+      - /media/external/tv:/tv
+      - ~/Server/sonarr/config:/config
+      - /media/external/downloads/:/downloads
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+    ports:
+      - 8989:8989
+    depends_on:
+      - transmission
+
+  radarr:
+    image: linuxserver/radarr:latest
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /dev/rtc:/dev/rtc:ro
+      - /media/external/movies:/movies
+      - ~/Server/radarr/config:/config
+      - /media/external/downloads/:/downloads
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+    ports:
+      - 7878:7878
+    depends_on:
+      - transmission
