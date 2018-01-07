@@ -20,7 +20,7 @@ Turn-key media server including Plex, Transmission, Radarr and Sonarr deployed v
 - clone this repository
 - create a user for the media server, add `$USER_ID` and `$GROUP_ID` variables to the appropriate place in the included `.env` file. (or use user id)
 - create a media folder in docker-compose's folder with $USER_ID:$GROUP_ID ownership
-- get your Plex claim token at https://www.plex.tv/claim/ (optional)
+- get your Plex claim token at https://www.plex.tv/claim/ (optional, if using, add to `.env` file as `PLEX_TOKEN`, and add `PLEX_CLAIM="${PLEX_TOKEN}"` to the environment variables under the plex configuration in `docker-compose.yaml`)
 - run `docker-compose up -d`
 - enjoy :)
 
