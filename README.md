@@ -1,12 +1,6 @@
 # media-server
 Turn-key media server including Plex, Transmission, Radarr and Sonarr deployed via docker
 
-## Prep
-
-- Assmemble NUC
-- install Ubuntu (flash USB stick if necessary)
-- install SSH: `sudo apt-get install openssh-server`
-- partition and format external drive [(if applicable)](https://askubuntu.com/questions/384062/how-do-i-create-and-tune-an-ext4-partition-from-the-command-line#answer-811954)
 
 ## Config
 
