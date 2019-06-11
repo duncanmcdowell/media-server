@@ -24,3 +24,9 @@ Turn-key media server including Plex, Transmission, Radarr and Sonarr deployed v
 - run `docker-compose up -d`
 - enjoy :)
 
+## Pi-hole and Unifi
+
+- In Pi-hole, under Settings -> DNS, turn on Conditional Forwarding with the IP of your router as the USG, and Local domain name your local domain name (localdomain).
+- Let the USG continue to do DHCP as before, but set DHCP Name Server to the Pi-hole IP.
+- In USG, under Services -> DHCP -> DHCP Server, be sure Register client hostname from DHCP requests in USG DNS forwarder is On.
+
