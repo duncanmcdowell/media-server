@@ -1,59 +1,106 @@
-version: '2'
+version: '3'
+
 services:
   plex:
     container_name: plex
     image: plexinc/pms-docker
-    restart: unless-stopped
     environment:
       - TZ="America/Toronto"
-      - PLEX_UID=${USER_ID}
-      - PLEX_GID=${GROUP_ID}
+      - PLEX_UID=1024
+      - PLEX_GID=100
     network_mode: host
     volumes:
-      - ~/Server/plex/config:/config
-      - ~/Server/plex/transcode/temp>:/transcode
-      - /media/external:/data
+      - /volume1/media/plex/config/:/config
+      - /volume1/@tmp:/transcode
+      - /volume1/media:/media
+    restart: unless-stopped
 
   transmission:
     image: linuxserver/transmission:latest
     environment:
-      - PUID=${USER_ID}
-      - PGID=${GROUP_ID}
+      - PUID=1024
+      - PGID=100
     ports:
       - 9091:9091
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ~/Server/transmission/config/:/config
-      - /media/external/downloads/:/downloads
+      - /volume1/media/transmission/config/:/config
+      - /volume1/media/Downloads/:/downloads
+    restart: unless-stopped
 
   sonarr:
     image: linuxserver/sonarr:latest
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /dev/rtc:/dev/rtc:ro
-      - /media/external/tv:/tv
-      - ~/Server/sonarr/config:/config
-      - /media/external/downloads/:/downloads
+      - /volume1/media/Tv:/tv
+      - /volume1/media/sonarr/config:/config
+      - /volume1/media/Downloads/:/downloads
     environment:
-      - PUID=${USER_ID}
-      - PGID=${GROUP_ID}
+      - PUID=1024
+      - PGID=100
     ports:
       - 8989:8989
     depends_on:
       - transmission
+    restart: unless-stopped
 
   radarr:
     image: linuxserver/radarr:latest
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /dev/rtc:/dev/rtc:ro
-      - /media/external/movies:/movies
-      - ~/Server/radarr/config:/config
-      - /media/external/downloads/:/downloads
+      - /volume1/media/Movies:/movies
+      - /volume1/media/radarr/config:/config
+      - /volume1/media/Downloads/:/downloads
     environment:
-      - PUID=${USER_ID}
-      - PGID=${GROUP_ID}
+      - PUID=1024
+      - PGID=100
     ports:
       - 7878:7878
     depends_on:
       - transmission
+    restart: unless-stopped
+
+  unifi-controller:
+    image: linuxserver/unifi-controller
+    container_name: unifi-controller
+    environment:
+      - PUID=1024
+      - PGID=100
+    volumes:
+      - /volume1/docker/unifi:/config
+    ports:
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8080:8080
+      - 8081:8081
+      - 8443:8443
+      - 8843:8843
+      - 8880:8880
+      - 6789:6789
+    restart: unless-stopped
+
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "8083:80/tcp"
+      - "1443:443/tcp"
+    environment:
+      TZ: 'America/Chicago'
+      WEB_PORT: 8082
+      VIRTUAL_HOST: 192.168.1.7
+      ServerIP: 192.168.1.7
+      # WEBPASSWORD: 'set a secure password here or it will be random'
+    # Volumes store your data between container upgrades
+    volumes:
+       - '/volume1/docker/pihole/etc-pihole/:/etc/pihole/'
+       - '/volume1/docker/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    # Recommended but not required (DHCP needs NET_ADMIN)
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
