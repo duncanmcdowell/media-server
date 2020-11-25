@@ -9,6 +9,8 @@ services:
       - PLEX_UID=1024
       - PLEX_GID=100
     network_mode: host
+    ports:
+      - 32400:32400
     volumes:
       - /volume1/media/plex/config/:/config
       - /volume1/@tmp:/transcode
@@ -22,6 +24,7 @@ services:
       - PGID=100
     ports:
       - 9091:9091
+      - 51413:51413
     volumes:
       - /volume1/media/transmission/config/:/config
       - /volume1/media/Downloads/:/downloads
